@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Happy Diwali</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rozha+One&family=Hind:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --night:#14082b; --plum:#2a0f4a; --marigold:#ffb000; --saffron:#ff6a00; --rose:#e0357a; --cream:#fff1c9;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --night:#14082b; --cream:#fff1c9; } }
+:root[data-theme="dark"]{ --night:#14082b; --cream:#fff1c9; }
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;height:100%;background:radial-gradient(ellipse at 50% 110%,var(--plum),var(--night) 70%);color:var(--cream);font-family:"Hind",system-ui,sans-serif;overflow:hidden}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+main{position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center;padding:6vh 20px 4vh}
+.top{margin-top:4vh}
+.hindi{font-family:"Rozha One",serif;font-size:clamp(1.1rem,3.4vw,1.6rem);color:var(--marigold);margin:0 0 6px;letter-spacing:.04em}
+h1{font-family:"Rozha One",Georgia,serif;font-weight:400;font-size:clamp(3rem,13vw,8rem);line-height:.95;margin:0;background:linear-gradient(180deg,#fff6d6,var(--marigold) 55%,var(--saffron));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 22px rgba(255,150,0,.45));animation:glow 3.2s ease-in-out infinite alternate}
+@keyframes glow{from{filter:drop-shadow(0 0 14px rgba(255,150,0,.3))}to{filter:drop-shadow(0 0 34px rgba(255,170,0,.7))}}
+.msg{max-width:34ch;margin:18px auto 0;font-size:clamp(1rem,2.6vw,1.25rem);line-height:1.55;color:var(--cream);opacity:.92}
+.from{margin-top:10px;font-family:"Rozha One",serif;color:var(--marigold);min-height:1.4em}
+.deity{position:fixed;z-index:0;top:50%;width:clamp(70px,13vw,170px);height:auto;transform:translateY(-50%);filter:drop-shadow(0 0 18px rgba(255,176,0,.24));pointer-events:none}
+.deity.krishna{left:2vw}
+.deity.rama{right:2vw}
+.mid{display:flex;flex-direction:column;align-items:center;gap:12px}
+.hint{font-size:.95rem;opacity:.8;min-height:1.4em}
+.row{display:flex;gap:clamp(6px,3vw,28px);justify-content:center;align-items:flex-end}
+.diya{background:none;border:0;padding:4px;cursor:pointer;position:relative;width:clamp(54px,15vw,100px);-webkit-tap-highlight-color:transparent}
+.diya:focus-visible{outline:2px solid var(--marigold);outline-offset:4px;border-radius:12px}
+.diya svg{width:100%;display:block;overflow:visible}
+.flame{transform-origin:50% 100%;opacity:0;transform:scale(.2);transition:opacity .4s,transform .4s}
+.lit .flame{opacity:1;transform:scale(1);animation:flick .45s ease-in-out infinite alternate}
+@keyframes flick{from{transform:scale(1) rotate(-3deg)}to{transform:scale(1.08,1.14) rotate(3deg)}}
+.halo{opacity:0;transition:opacity .6s}
+.lit .halo{opacity:1}
+.controls{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;align-items:center}
+button.cta{font:inherit;font-size:1rem;border-radius:999px;border:1px solid rgba(255,176,0,.55);padding:10px 20px;color:var(--cream);background:rgba(255,255,255,.06)}
+button.cta{cursor:pointer;background:linear-gradient(135deg,var(--saffron),var(--rose));border-color:transparent;color:#fff;font-weight:500}
+button.cta:hover{filter:brightness(1.1)}
+button.cta:focus-visible{outline:2px solid var(--marigold);outline-offset:3px}
+.floor{height:6px;width:min(560px,90vw);border-radius:6px;background:linear-gradient(90deg,transparent,rgba(255,176,0,.5),transparent);margin-top:-2px}
+@media(max-width:600px){.deity{width:clamp(48px,14vw,76px);top:42%;opacity:.72}.deity.krishna{left:0}.deity.rama{right:0}main{padding-left:12px;padding-right:12px}}
+@media(prefers-reduced-motion:reduce){h1{animation:none}}
+</style>
+</head>
+<body>
+<canvas id="fx" aria-hidden="true"></canvas>
+<main>
+  <div class="top">
+    <p class="hindi" lang="te">శుభ దీపావళి</p>
+    <h1>Happy Diwali</h1>
+    <p class="msg">May your home glow with light, laughter and sweets, and every day ahead shine as bright as tonight.</p>
+    <div class="from">With love, Dwwarakanadha Reddy</div>
+  </div>
+  <div class="mid">
+    <div class="hint" id="hint">Tap each diya to light it</div>
+    <div>
+      <div class="row" id="row"></div>
+      <div class="floor"></div>
+    </div>
+    <div class="controls">
+      <button class="cta" id="music" type="button" aria-pressed="false">Play instrumental</button>
+      <button class="cta" id="sky" type="button">Light up the sky</button>
+    </div>
+  </div>
+</main>
+<svg class="deity krishna" viewBox="0 0 160 220" role="img" aria-label="Illustration of Lord Krishna">
+  <circle cx="80" cy="112" r="72" fill="#391c57" stroke="#ffb000" stroke-opacity=".55" stroke-width="2"/>
+  <path d="M58 39 Q44 18 58 8 Q72 24 65 42" fill="#39a878" stroke="#ffcf54" stroke-width="3"/>
+  <path d="M58 39 Q83 16 93 34 Q80 44 58 39" fill="#23a8a2" stroke="#ffcf54" stroke-width="2"/>
+  <circle cx="80" cy="77" r="34" fill="#4a9ee8"/>
+  <path d="M47 75 Q50 36 83 40 Q112 42 114 76 Q96 60 81 63 Q63 62 47 75" fill="#17112f"/>
+  <path d="M59 78 Q68 72 75 78 M86 78 Q94 72 101 78" fill="none" stroke="#21152f" stroke-width="3" stroke-linecap="round"/>
+  <path d="M76 90 Q81 94 86 90" fill="none" stroke="#f4c19b" stroke-width="2" stroke-linecap="round"/>
+  <path d="M46 135 Q80 111 114 135 L128 198 Q80 214 32 198Z" fill="#ffb000"/>
+  <path d="M48 143 Q79 161 112 143" fill="none" stroke="#fff1c9" stroke-width="5"/>
+  <path d="M33 126 L127 170" stroke="#f3d9a1" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="34" cy="126" r="5" fill="#ffb000"/><circle cx="127" cy="170" r="5" fill="#ffb000"/>
+  <circle cx="80" cy="72" r="3" fill="#ffb000"/>
+</svg>
+<svg class="deity rama" viewBox="0 0 160 220" role="img" aria-label="Illustration of Lord Rama">
+  <circle cx="80" cy="112" r="72" fill="#391c57" stroke="#ffb000" stroke-opacity=".55" stroke-width="2"/>
+  <path d="M48 76 Q49 40 80 40 Q111 40 112 76 Q95 61 80 63 Q62 62 48 76" fill="#17112f"/>
+  <circle cx="80" cy="78" r="34" fill="#4a9ee8"/>
+  <path d="M59 79 Q67 73 75 79 M86 79 Q94 73 101 79" fill="none" stroke="#21152f" stroke-width="3" stroke-linecap="round"/>
+  <path d="M76 91 Q80 94 85 91" fill="none" stroke="#f4c19b" stroke-width="2" stroke-linecap="round"/>
+  <path d="M46 136 Q80 112 114 136 L128 198 Q80 214 32 198Z" fill="#49a76f"/>
+  <path d="M49 142 Q80 160 111 142" fill="none" stroke="#ffcf54" stroke-width="5"/>
+  <path d="M27 187 Q83 127 129 97" fill="none" stroke="#ffcf54" stroke-width="4" stroke-linecap="round"/>
+  <path d="M36 193 Q63 181 69 151 Q72 125 61 107 Q51 129 47 152 Q42 176 36 193Z" fill="none" stroke="#ffcf54" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M59 108 L67 99" stroke="#ffcf54" stroke-width="3" stroke-linecap="round"/>
+</svg>
+<script>
+(function(){
+  var cv=document.getElementById('fx'),ctx=cv.getContext('2d');
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var W,H,dpr=Math.min(window.devicePixelRatio||1,2);
+  function resize(){W=innerWidth;H=innerHeight;cv.width=W*dpr;cv.height=H*dpr;ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#14082b';ctx.fillRect(0,0,W,H)}
+  resize();addEventListener('resize',resize);
+  var parts=[],rockets=[];
+  var hues=[38,28,330,48,18,290];
+  function rnd(a,b){return a+Math.random()*(b-a)}
+  function burst(x,y,hue){
+    var n=reduce?24:70+Math.floor(Math.random()*30);
+    for(var i=0;i<n;i++){
+      var a=Math.PI*2*i/n+rnd(-.1,.1),s=rnd(1.5,5.5);
+      parts.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life:1,d:rnd(.009,.019),h:hue+rnd(-12,12)});
+    }
+  }
+  function launch(x,ty,hue){rockets.push({x:x,y:H,ty:ty,vy:-rnd(8,11),h:hue})}
+  function sky(n){for(var i=0;i<n;i++)setTimeout(function(){launch(rnd(W*.1,W*.9),rnd(H*.12,H*.5),hues[Math.floor(Math.random()*hues.length)])},i*260)}
+  function frame(){
+    ctx.globalCompositeOperation='source-over';
+    ctx.fillStyle='rgba(20,8,43,.22)';ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation='lighter';
+    for(var i=rockets.length-1;i>=0;i--){
+      var r=rockets[i];r.y+=r.vy;r.vy*=.985;
+      ctx.fillStyle='hsl('+r.h+',100%,75%)';ctx.beginPath();ctx.arc(r.x,r.y,2,0,6.3);ctx.fill();
+      if(r.y<=r.ty||r.vy>-1.5){burst(r.x,r.y,r.h);rockets.splice(i,1)}
+    }
+    for(var j=parts.length-1;j>=0;j--){
+      var p=parts[j];p.x+=p.vx;p.y+=p.vy;p.vx*=.985;p.vy=p.vy*.985+.045;p.life-=p.d;
+      if(p.life<=0){parts.splice(j,1);continue}
+      ctx.fillStyle='hsla('+p.h+',100%,'+(55+p.life*20)+'%,'+p.life+')';
+      ctx.beginPath();ctx.arc(p.x,p.y,1.2+p.life*1.4,0,6.3);ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  frame();
+
+  var diyaSVG='<svg viewBox="0 0 100 90" aria-hidden="true">'+
+    '<defs><radialGradient id="hg"><stop offset="0" stop-color="#ffb000" stop-opacity=".55"/><stop offset="1" stop-color="#ff6a00" stop-opacity="0"/></radialGradient>'+
+    '<linearGradient id="cl" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c2561f"/><stop offset="1" stop-color="#7a2a0e"/></linearGradient>'+
+    '<linearGradient id="fl" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff6a00"/><stop offset=".6" stop-color="#ffb000"/><stop offset="1" stop-color="#fff6d6"/></linearGradient></defs>'+
+    '<circle class="halo" cx="50" cy="38" r="48" fill="url(#hg)"/>'+
+    '<path class="flame" d="M50 62 C36 48 44 32 50 16 C56 32 64 48 50 62Z" fill="url(#fl)"/>'+
+    '<path d="M6 54 Q50 50 94 54 Q88 84 50 86 Q12 84 6 54Z" fill="url(#cl)"/>'+
+    '<path d="M6 54 Q50 60 94 54" fill="none" stroke="#ffb000" stroke-width="2" opacity=".7"/>'+
+    '<circle cx="50" cy="72" r="3" fill="#ffb000" opacity=".8"/></svg>';
+  var row=document.getElementById('row'),hint=document.getElementById('hint'),lit=0,total=5,done=false;
+  for(var k=0;k<total;k++){
+    var b=document.createElement('button');b.className='diya';b.type='button';b.setAttribute('aria-label','Light diya '+(k+1));b.setAttribute('aria-pressed','false');b.innerHTML=diyaSVG.replace(/id="(hg|cl|fl)"/g,'id="$1'+k+'"').replace(/url\(#(hg|cl|fl)\)/g,'url(#$1'+k+')');
+    b.addEventListener('click',onDiya);row.appendChild(b);
+  }
+  function onDiya(e){
+    var b=e.currentTarget;
+    if(b.classList.contains('lit'))return;
+    b.classList.add('lit');b.setAttribute('aria-pressed','true');lit++;
+    var rc=b.getBoundingClientRect();
+    launch(rc.left+rc.width/2,rnd(H*.15,H*.45),hues[lit%hues.length]);
+    if(lit<total){hint.textContent=(total-lit)+' more to go'}
+    else if(!done){done=true;hint.textContent='Shubh Deepavali! May light always win.';sky(reduce?4:14)}
+  }
+  document.getElementById('sky').addEventListener('click',function(){sky(reduce?3:8)});
+  var musicButton=document.getElementById('music'),audioContext=null,musicTimer=null,musicStep=0;
+  var melody=[293.66,349.23,392,440,392,349.23,329.63,293.66,261.63,329.63,392,349.23,329.63,293.66,261.63,293.66];
+  function playTone(frequency,start,duration,volume,type){
+    var oscillator=audioContext.createOscillator(),gain=audioContext.createGain();
+    oscillator.type=type;oscillator.frequency.value=frequency;
+    gain.gain.setValueAtTime(.0001,start);
+    gain.gain.exponentialRampToValueAtTime(volume,start+.04);
+    gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
+    oscillator.connect(gain);gain.connect(audioContext.destination);
+    oscillator.start(start);oscillator.stop(start+duration+.02);
+  }
+  function playMusicStep(){
+    var now=audioContext.currentTime,note=melody[musicStep%melody.length];
+    playTone(note,now,1.05,.045,'triangle');
+    playTone(note/2,now,.95,.018,'sine');
+    musicStep++;
+  }
+  musicButton.addEventListener('click',function(){
+    if(musicTimer){
+      clearInterval(musicTimer);musicTimer=null;
+      audioContext.close();audioContext=null;
+      musicButton.textContent='Play instrumental';musicButton.setAttribute('aria-pressed','false');
+      return;
+    }
+    var AudioContextClass=window.AudioContext||window.webkitAudioContext;
+    if(!AudioContextClass){musicButton.textContent='Audio not supported';return}
+    audioContext=new AudioContextClass();
+    audioContext.resume();
+    musicStep=0;playMusicStep();
+    musicTimer=setInterval(playMusicStep,650);
+    musicButton.textContent='Stop instrumental';musicButton.setAttribute('aria-pressed','true');
+  });
+  document.addEventListener('pointerdown',function(e){
+    if(e.target.closest('button'))return;
+    launch(e.clientX,e.clientY,hues[Math.floor(Math.random()*hues.length)]);
+  });
+  setTimeout(function(){sky(reduce?2:5)},500);
+})();
+</script>
+</body>
+</html>
